@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in - NAWEC MDMS</title><script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{ink:'#0f1722',panel:'#c9ddf0',brand:'#2f6fb0'}}}}</script></head>
+<body class="flex min-h-screen items-center justify-center bg-panel p-4">
+<form method="post" class="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 text-sm shadow-sm">
+  <h1 class="text-lg font-semibold text-slate-900">⚡ NAWEC Meter Data Management</h1>
+  {% with msgs = get_flashed_messages(with_categories=true) %}{% for cat,m in msgs %}<div class="rounded-lg bg-red-100 px-3 py-2 text-red-800">{{ m }}</div>{% endfor %}{% endwith %}
+  <label class="block">Username<input name="username" required autofocus class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-brand"></label>
+  <label class="block">Password<input name="password" type="password" required class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-brand"></label>
+  <button class="w-full rounded-lg bg-brand py-2 font-medium text-white hover:bg-blue-800">Sign in</button>
+</form></body></html>

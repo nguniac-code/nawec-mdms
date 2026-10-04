@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% macro card(title) %}<section class="lift rounded-xl bg-white p-4 shadow-sm"><h2 class="mb-2 text-sm font-semibold text-slate-800">{{ title }}</h2>{{ caller() }}</section>{% endmacro %}
+{% macro img(key) %}{% if charts.get(key) %}<img class="w-full" alt="" src="data:image/png;base64,{{ charts[key] }}">{% else %}<p class="text-sm text-slate-400">No data yet.</p>{% endif %}{% endmacro %}
+{% block content %}
+<p class="text-xs text-slate-600">{{ now }}</p>
+<div class="grid gap-4 lg:grid-cols-5">
+  <div class="lg:col-span-3">{% call card('Data Ingestion Rates (by Customer Type)') %}{{ img('ingestion') }}{% endcall %}</div>
+  <div class="lg:col-span-2">{% call card('Data Quality Trend') %}{{ img('quality') }}{% endcall %}</div>
+</div>
+<div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+  {% for label,value,note in kpis %}
+  <div class="kpi lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">{{ label }}</p>
+    <p class="mt-1 text-2xl font-semibold text-slate-900 xl:text-3xl"><span class="count">{{ value }}</span> <span class="text-sm font-normal text-slate-500">{{ note }}</span></p></div>
+  {% endfor %}
+</div>
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {% call card('Validation Error Types') %}{{ img('errors') }}{% endcall %}
+  {% call card('Errors by Customer Type') %}{{ img('by_type') }}{% endcall %}
+  {% call card('Communication Gaps by Region') %}{{ img('gaps') }}{% endcall %}
+  {% call card('Data Filters') %}
+  <form class="space-y-3 text-sm">
+    <label class="block">Severity
+      <select name="severity" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5">
+        <option value="">All</option>{% for s in ['Critical','Warning'] %}<option {{ 'selected' if sev==s }}>{{ s }}</option>{% endfor %}</select></label>
+    <label class="block">Error Type
+      <select name="code" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5">
+        <option value="">All</option>{% for c,n in errors.items() %}<option value="{{ c }}" {{ 'selected' if code==c }}>{{ c }} - {{ n }}</option>{% endfor %}</select></label>
+    <button class="w-full rounded-lg bg-brand py-1.5 font-medium text-white hover:bg-blue-800">Apply filters</button>
+  </form>
+  {% endcall %}
+</div>
+<div class="grid gap-4 xl:grid-cols-4">
+  <div class="xl:col-span-2">{% call card('Recent Validation Failures') %}
+    <div class="overflow-x-auto"><table class="w-full text-left text-sm">
+      <thead class="text-slate-500"><tr><th class="py-1 pr-3">Time</th><th class="pr-3">Meter</th><th class="pr-3">Description</th><th>Severity</th></tr></thead>
+      <tbody class="divide-y divide-slate-100">
+      {% for r in rows %}<tr><td class="py-1.5 pr-3 whitespace-nowrap">{{ r.ts }}</td><td class="pr-3">{{ r.meter_number }}</td><td class="pr-3">{{ errors[r.code] }}</td>
+        <td><span class="rounded-full px-2 py-0.5 text-xs font-medium text-white {{ 'bg-red-700' if r.severity=='Critical' else 'bg-amber-500' }}">{{ r.severity }}</span></td></tr>
+      {% else %}<tr><td colspan="4" class="py-3 text-slate-400">No failures match these filters.</td></tr>{% endfor %}
+      </tbody></table></div>{% endcall %}</div>
+  {% call card('Data Distribution') %}{{ img('dist') }}{% endcall %}
+  {% call card('Outliers') %}{{ img('outliers') }}{% endcall %}
+</div>
+{% endblock %}

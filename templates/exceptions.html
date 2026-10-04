@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="rounded-xl bg-white p-4 shadow-sm">
+  <h1 class="mb-3 font-semibold text-slate-800">Alerts & Exceptions</h1>
+  <div class="overflow-x-auto"><table class="w-full text-left text-sm">
+    <thead class="text-slate-500"><tr><th class="py-1 pr-3">Time</th><th class="pr-3">Meter</th><th class="pr-3">Customer</th><th class="pr-3">Issue</th><th class="pr-3">Severity</th><th></th></tr></thead>
+    <tbody class="divide-y divide-slate-100">
+    {% for r in rows %}<tr class="{{ 'text-slate-400' if r.resolved }}"><td class="py-1.5 pr-3 whitespace-nowrap">{{ r.ts }}</td><td class="pr-3">{{ r.meter_number }}</td><td class="pr-3">{{ r.customer_name }}</td><td class="pr-3">{{ errors[r.code] }}</td>
+      <td class="pr-3">{{ r.severity }}</td>
+      <td class="text-right">{% if r.resolved %}Resolved{% else %}<form method="post" action="/exceptions/{{ r.id }}/resolve"><button class="rounded-lg border border-brand px-2 py-1 text-brand hover:bg-brand hover:text-white">Mark resolved</button></form>{% endif %}</td></tr>
+    {% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

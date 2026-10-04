@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+  <div class="kpi lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">Ready to bill</p><p class="mt-1 text-2xl font-semibold text-green-700"><span class="count">{{ '{:,.2f}'.format(ready_amt) }}</span></p></div>
+  <div class="kpi lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">On hold</p><p class="mt-1 text-2xl font-semibold text-amber-600"><span class="count">{{ '{:,.2f}'.format(hold_amt) }}</span></p></div>
+  <div class="kpi lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">Meters ready</p><p class="mt-1 text-2xl font-semibold"><span class="count">{{ n_ready }}</span></p></div>
+  <div class="kpi lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">Meters on hold</p><p class="mt-1 text-2xl font-semibold"><span class="count">{{ n_hold }}</span></p></div>
+</div>
+<section class="rounded-xl bg-white p-4 text-sm shadow-sm">
+  <div class="mb-3 flex flex-wrap items-center justify-between gap-2"><div><h1 class="font-semibold text-slate-800">Billing preparation</h1>
+    <p class="text-slate-500">Valid usage times the tariff. Meters with open exceptions are held until they are resolved.</p></div>
+    <div class="flex gap-2"><a href="/settings" class="rounded-lg border border-brand px-3 py-1.5 text-brand">Edit tariffs</a><a href="/download/billing.csv" class="rounded-lg bg-brand px-3 py-1.5 font-medium text-white">Export CSV</a></div></div>
+  <div class="overflow-x-auto"><table class="w-full text-left"><thead class="text-slate-500"><tr><th class="py-1 pr-3">Meter</th><th class="pr-3">Customer</th><th class="pr-3">Type</th><th class="pr-3 text-right">kWh</th><th class="pr-3 text-right">Rate</th><th class="pr-3 text-right">Amount</th><th>Status</th></tr></thead>
+  <tbody class="divide-y divide-slate-100">{% for r in rows %}<tr><td class="py-1.5 pr-3 font-medium">{{ r.meter_number }}</td><td class="pr-3">{{ r.customer_name }}</td><td class="pr-3">{{ r.customer_type }}</td>
+    <td class="pr-3 text-right">{{ '{:,.1f}'.format(r.kwh) }}</td><td class="pr-3 text-right">{{ r.rate }}</td><td class="pr-3 text-right">{{ '{:,.2f}'.format(r.amount) }}</td>
+    <td><span class="rounded-full px-2 py-0.5 text-xs font-medium text-white {{ 'bg-green-600' if r.status=='Ready' else 'bg-amber-500' }}">{{ r.status }}{{ ' (' ~ r.open_ex ~ ')' if r.open_ex }}</span></td></tr>
+  {% else %}<tr><td colspan="7" class="py-4 text-slate-400">No meters yet.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

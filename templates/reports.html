@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="lift rounded-xl bg-white p-4 shadow-sm"><h1 class="mb-2 text-sm font-semibold text-slate-800">Consumption by region and customer type</h1>
+  {% if chart %}<img class="w-full max-w-3xl" alt="" src="data:image/png;base64,{{ chart }}">{% else %}<p class="text-sm text-slate-400">No readings yet. Upload a CSV to see this report.</p>{% endif %}</section>
+<section class="rounded-xl bg-white p-4 text-sm shadow-sm"><h2 class="mb-3 font-semibold text-slate-800">Download data</h2>
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+  {% for n,label in [('billing','Billing summary'),('readings','All readings'),('exceptions','Exceptions log'),('meters','Meter register')] %}
+  <a href="/download/{{ n }}.csv" class="lift rounded-lg border border-slate-200 p-4 hover:border-brand"><b class="block text-slate-800">{{ label }}</b><span class="text-slate-500">{{ n }}.csv</span></a>{% endfor %}</div></section>
+{% endblock %}

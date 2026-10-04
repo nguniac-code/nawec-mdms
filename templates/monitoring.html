@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="flex items-center gap-2 text-sm"><span class="live"></span><b>Live</b><span class="text-slate-600">last check <span id="t">{{ s.time }}</span>, refreshes every 5 seconds</span></p>
+<div class="grid gap-4 md:grid-cols-3">
+  <section class="lift rounded-xl bg-white p-5 text-center"><h2 class="mb-2 text-sm font-semibold text-slate-800">Validation pass rate</h2>
+    <div class="relative mx-auto h-36 w-36"><svg viewBox="0 0 120 120" class="h-full w-full -rotate-90"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5ebf2" stroke-width="12"/>
+      <circle id="ring" cx="60" cy="60" r="50" fill="none" stroke="#2f6fb0" stroke-width="12" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" style="transition:stroke-dashoffset 1.3s cubic-bezier(.2,.7,.2,1)"/></svg>
+      <span id="pass" class="absolute inset-0 flex items-center justify-center text-2xl font-semibold text-slate-900">0%</span></div></section>
+  <section class="lift space-y-5 rounded-xl bg-white p-5 md:col-span-2"><h2 class="text-sm font-semibold text-slate-800">Pipeline health</h2>
+    {% for k,label in [('coverage','Reading coverage (readings vs 24 per meter)'),('resolved','Exceptions resolved')] %}
+    <div><div class="mb-1 flex justify-between text-sm"><span>{{ label }}</span><b id="v-{{ k }}">0%</b></div>
+      <div class="h-3 overflow-hidden rounded-full bg-slate-100"><div id="b-{{ k }}" class="bar h-full w-0 rounded-full bg-brand"></div></div></div>
+    {% endfor %}</section>
+</div>
+<div class="grid grid-cols-2 gap-3 md:grid-cols-5">
+  {% for k,label in [('meters','Meters'),('readings','Readings stored'),('open','Open exceptions'),('db_kb','Database (KB)'),('uptime','App uptime')] %}
+  <div class="lift rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-600">{{ label }}</p><p id="s-{{ k }}" class="mt-1 text-2xl font-semibold text-slate-900">{{ s[k] }}</p></div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const fmt=v=>typeof v==='number'?v.toLocaleString():v;
+function apply(d){
+  document.getElementById('ring').style.strokeDashoffset=314*(1-d.pass/100);
+  document.getElementById('pass').textContent=d.pass+'%';
+  for(const k of ['coverage','resolved']){document.getElementById('b-'+k).style.width=d[k]+'%';document.getElementById('v-'+k).textContent=d[k]+'%'}
+  for(const k of ['meters','readings','open','db_kb','uptime'])document.getElementById('s-'+k).textContent=fmt(d[k]);
+  document.getElementById('t').textContent=d.time;
+}
+requestAnimationFrame(()=>requestAnimationFrame(()=>apply({{ s|tojson }})));
+setInterval(()=>fetch('/api/status').then(r=>r.json()).then(apply).catch(()=>{}),5000);
+</script>
+{% endblock %}
